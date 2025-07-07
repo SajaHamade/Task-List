@@ -2,8 +2,7 @@ import express from "express";
 import { fetchTasks, createTasks, updateTasks, DeleteTasks } from "./task.js";
 import serverless from "serverless-http";
 import cors from "cors";
-import dotenv from "dotenv";
-dotenv.config();
+
 
 const app = express();
 const port = 3001;
@@ -36,6 +35,11 @@ app.use((req, res, next) => {
 
 app.get("/", async (req, res) => {
   res.send("Hello World!");
+});
+
+app.use((req, res) => {
+  console.log(`Unknown route: ${req.method} ${req.path}`);
+  res.status(404).send("Not Found");
 });
 
 app.get("/task", async (req, res) => {
