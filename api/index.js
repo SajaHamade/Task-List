@@ -12,9 +12,22 @@ console.log(process.env.DEVELOPMENT);
 
 app.use(express.json()); //to access the body of the request
 
-if (process.env.DEVELOPMENT) {
-  app.use(cors());
-}
+// ✅ Add this to always enable CORS
+app.use(
+  cors({
+    origin:
+      process.env.DEVELOPMENT === "true"
+        ? "*"
+        : "https://main.d21836jsw9zr6s.amplifyapp.com",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
+
+// ✅ Optional, but helpful
+app.options("*", cors());
+
+app.use(express.json());
 
 app.get("/", async (req, res) => {
   res.send("Hello World!");
