@@ -1,8 +1,10 @@
+import dotenv from "dotenv";
+import cors from "cors";
 import express from "express";
 import { fetchTasks, createTasks, updateTasks, DeleteTasks } from "./task.js";
 import serverless from "serverless-http";
-import cors from "cors";
 
+dotenv.config();
 
 const app = express();
 const port = 3001;
@@ -16,16 +18,16 @@ app.use(express.json());
 app.use(
   cors({
     origin:
-      process.env.DEVELOPMENT === "true"
+      /*process.env.DEVELOPMENT === "true"
         ? "*" // Allow all origins in development
-        : "https://main.d21836jsw9zr6s.amplifyapp.com", // Your deployed frontend URL in prod
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        : */ "https://main.d1p7ceotkt5ufd.amplifyapp.com", // Your deployed frontend URL in prod
+    methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type"],
   })
 );
 
 // Preflight requests handler for all routes
-app.options("*", cors());
+//app.options("*", cors());
 
 // Optional: simple request logging middleware for debugging
 app.use((req, res, next) => {
@@ -37,15 +39,16 @@ app.get("/", async (req, res) => {
   res.send("Hello World!");
 });
 
+/*
 app.use((req, res) => {
   console.log(`Unknown route: ${req.method} ${req.path}`);
   res.status(404).send("Not Found");
-});
+}); */
 
 app.get("/task", async (req, res) => {
   try {
     const tasks = await fetchTasks();
-    res.send(tasks.items ?? []); // fallback to empty array if undefined
+    res.send(tasks.Items || []); // fallback to empty array if undefined
   } catch (error) {
     console.error("Error fetching tasks:", error);
     res.status(500).send(`Error fetching tasks: ${error.message || error}`);
@@ -55,6 +58,7 @@ app.get("/task", async (req, res) => {
 app.post("/task", async (req, res) => {
   try {
     const task = req.body;
+    console.log("Received task is ", task);
     const response = await createTasks(task);
     res.send(response);
   } catch (error) {
@@ -66,6 +70,7 @@ app.post("/task", async (req, res) => {
 app.put("/task", async (req, res) => {
   try {
     const task = req.body;
+    console.log("Received task is ", task);
     const response = await updateTasks(task);
     res.send(response);
   } catch (error) {
@@ -91,4 +96,14 @@ if (process.env.DEVELOPMENT === "true") {
   });
 }
 
-export const handler = serverless(app);
+export const handler = serverless(app, {
+  request: (req, event, context) => {
+    if (event.body && typeof event.body === "string") {
+      try {
+        req.body = JSON.parse(event.body);
+      } catch (e) {
+        console.error("Invalid JSON in body:", e);
+      }
+    }
+  },
+});

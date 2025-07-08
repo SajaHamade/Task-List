@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -13,24 +13,39 @@ export const UpdateTask = ({
   setIsDialogOpen,
   task,
 }) => {
-  const { IdleDeadline, completed } = task;
-  const { taskName, setTaskName } = useState("");
+  const [taskName, setTaskName] = useState("");
+
+  useEffect(() => {
+    if (isDialogOpen && task && task.name) {
+      setTaskName(task.name);
+    }
+  }, [isDialogOpen, task]);
 
   const handleUpdateTaskName = async () => {
+    console.log("task to be updated", task);
+    if (!task?.id) {
+      console.error("No task ID available");
+      return;
+    }
+
     try {
       await axios.put(API_URL, {
-        id,
+        id: task.id,
         name: taskName,
-        completed,
+        completed: task.completed,
       });
 
       await fetchTasks();
+      setIsDialogOpen(false);
       setTaskName("");
     } catch (error) {
-      console.log(error);
+      console.error("Error during PUT:", error);
     }
   };
 
+  const handleChange = useCallback((e) => {
+    setTaskName(e.target.value);
+  }, []);
   return (
     <Dialog open={isDialogOpen}>
       <DialogTitle>Edit Task</DialogTitle>
@@ -39,15 +54,10 @@ export const UpdateTask = ({
           size="small"
           label="Task"
           variant="outlined"
-          onChange={(e) => setTaskName(e.target.value)}
+          value={taskName}
+          onChange={handleChange}
         />
-        <Button
-          variant="contained"
-          onClick={async () => {
-            await handleUpdateTaskName();
-            setIsDialogOpen(false);
-          }}
-        >
+        <Button variant="contained" onClick={handleUpdateTaskName}>
           <CheckIcon />
         </Button>
       </div>

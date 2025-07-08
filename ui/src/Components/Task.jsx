@@ -9,7 +9,7 @@ import classnames from "classnames";
 import axios from "axios";
 import { API_URL } from "../utils";
 
-export const Task = ({ task , fetchTasks}) => {
+export const Task = ({ task, fetchTasks }) => {
   const { id, name, completed } = task;
   const [isComplete, setIsComplete] = useState(completed);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -23,14 +23,13 @@ export const Task = ({ task , fetchTasks}) => {
     }
   };
 
-  const handleDeleteTask = async() => {
-  try {
-     await axios.delete(`${API_URL}/${task.id}`);
-     await fetchTasks();
-
-  } catch (error) {
-     console.log(error);
-  }
+  const handleDeleteTask = async () => {
+    try {
+      await axios.delete(`${API_URL}/${task.id}`);
+      await fetchTasks();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -44,9 +43,16 @@ export const Task = ({ task , fetchTasks}) => {
         <Typography variant="h4">{name}</Typography>
       </div>
       <div className="taskButtons">
-        <Button variant="contained" onClick={() => setIsDialogOpen(true)}>
+        <Button
+          variant="contained"
+          onClick={() => {
+            console.log("Edit clicked for:", task);
+            setIsDialogOpen(true);
+          }}
+        >
           <EditIcon />
         </Button>
+
         <Button color="red" variant="contained" onClick={handleDeleteTask}>
           <DeleteIcon />
         </Button>
@@ -56,7 +62,7 @@ export const Task = ({ task , fetchTasks}) => {
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}
         task={task}
-        fetchTasks = {fetchTasks}
+        fetchTasks={fetchTasks}
       />
     </div>
   );

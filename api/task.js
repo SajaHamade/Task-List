@@ -19,12 +19,13 @@ export const fetchTasks = async () => {
   });
 
   const response = await docClient.send(command);
-  
+  console.log(response);
 
   return response;
 };
 
 export const createTasks = async ({ name, completed }) => {
+  console.log("the name sent is", name);
   const uuid = crypto.randomUUID();
   const command = new PutCommand({
     TableName: "Tasks",
@@ -36,11 +37,13 @@ export const createTasks = async ({ name, completed }) => {
   });
 
   const response = await docClient.send(command);
+  console.log(response);
 
   return response;
 };
 
 export const updateTasks = async ({ id, name, completed }) => {
+  console.log("the received id is", id);
   const command = new UpdateCommand({
     TableName: "Tasks",
     Key: {
