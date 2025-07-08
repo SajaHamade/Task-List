@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -6,31 +6,24 @@ import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
 import { API_URL } from "../utils";
 
-export const AddTaskForm = ({ fetchTasks }) => {
+
+export const AddTaskForm = ({fetchTasks}) => {
   const [newTask, setNewTask] = useState("");
-  const [taskAdded, setTaskAdded] = useState(false); // 👈 trigger refetch
 
   const addNewTask = async () => {
-    try {
-      await axios.post(API_URL, {
-        name: newTask,
-        completed: false,
-      });
+   try {
+    await axios.post(API_URL, {
+      name: newTask ,
+      completed: false 
+    });
 
-      setNewTask("");
-      setTaskAdded(true); // 👈 trigger useEffect to refetch
-    } catch (error) {
-      console.log(error);
-    }
+    await fetchTasks();
+
+    setNewTask("");
+   } catch (error) {
+    console.log(error);
+   }
   };
-
-  useEffect(() => {
-    if (taskAdded) {
-      fetchTasks();
-      setTaskAdded(false); // reset the flag
-    }
-  }, [taskAdded, fetchTasks]);
-
   return (
     <div>
       <Typography align="center" variant="h2" paddingTop={2} paddingBottom={2}>
